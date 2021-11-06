@@ -210,9 +210,9 @@ class _WaitRouteState extends State<WaitRoute> {
                 )
               ],
             ),
-            // const CircularProgressIndicator(
-            //   color: Colors.white,
-            // )
+            const CircularProgressIndicator(
+              color: Colors.white,
+            )
           ])),
     );
   }
