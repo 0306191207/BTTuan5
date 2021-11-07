@@ -14,11 +14,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        home: WaitRoute());
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => SignInRoute(),
+        '/Error': (context) => ErrorRoute(),
+        '/Wait': (context) => WaitRoute(),
+      },
+    );
   }
 }
 
@@ -93,7 +99,13 @@ class SignInRoute extends StatelessWidget {
       height: 40,
       width: double.infinity,
       child: OutlinedButton(
-          onPressed: () {},
+          onPressed: () {
+            if (_controllerPassword.text == _controllerEmail.text) {
+              Navigator.pushNamed(context, '/Wait');
+              return;
+            }
+            Navigator.pushNamed(context, '/Error');
+          },
           child: const Text(
             'SIGN IN',
             style: TextStyle(color: Colors.white),
@@ -146,7 +158,9 @@ class ErrorRoute extends StatelessWidget {
           style: OutlinedButton.styleFrom(
               backgroundColor: Colors.black,
               shape: const RoundedRectangleBorder(side: BorderSide.none)),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pop(context);
+          },
           child: const Text(
             'Try again',
             style: TextStyle(color: Colors.white),
@@ -173,8 +187,8 @@ class _WaitRouteState extends State<WaitRoute> {
   void initState() {
     super.initState();
     Timer(const Duration(seconds: 3), () {
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const SignInRoute()));
+      Navigator.of(context)
+          .pushReplacement(MaterialPageRoute(builder: (_) => ShowEmailRoute()));
     });
   }
 
@@ -215,5 +229,171 @@ class _WaitRouteState extends State<WaitRoute> {
             )
           ])),
     );
+  }
+}
+
+class ShowEmailRoute extends StatefulWidget {
+  @override
+  State<ShowEmailRoute> createState() => _ShowEmailRouteState();
+}
+
+class _ShowEmailRouteState extends State<ShowEmailRoute> {
+  List<String> listmailboxes = [
+    'All inboxes',
+    'Icloud',
+    'Hotmail',
+    'Gmail',
+    'VIP'
+  ];
+  List<String> listSpecial = [
+    'Secure',
+    'Notification',
+  ];
+  int count = 1;
+  var isCheckedMailboxes;
+  var isCheckedSpecial;
+
+  @override
+  void initState() {
+    super.initState();
+    isCheckedMailboxes = List<bool>.filled(listmailboxes.length, false);
+    isCheckedSpecial = List<bool>.filled(listSpecial.length, false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget title = Container(
+      height: 50,
+      color: Colors.blueGrey[100],
+      child: Row(
+        children: [
+          const Expanded(
+              child: Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Mailboxes',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ))),
+          TextButton(
+            onPressed: () {},
+            child: const Text(
+              'Done',
+              style: TextStyle(color: Colors.blue),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    Widget mailboxes = Container(
+      color: Colors.grey[200],
+      height: 50,
+      padding: const EdgeInsets.only(left: 10),
+      child: const Align(
+        alignment: Alignment.bottomLeft,
+        child: Text(
+          'Mailboxes',
+          style: TextStyle(color: Colors.black54),
+        ),
+      ),
+    );
+
+    Widget specialFolder = Container(
+      color: Colors.grey[200],
+      height: 50,
+      padding: const EdgeInsets.only(left: 10),
+      child: const Align(
+        alignment: Alignment.bottomLeft,
+        child: Text(
+          'Special folders',
+          style: TextStyle(color: Colors.black54),
+        ),
+      ),
+    );
+
+    Widget listMailboxes = Expanded(
+        child: ListView.builder(
+            itemCount: listmailboxes.length,
+            itemBuilder: (context, index) {
+              return Card(
+                child: Row(
+                  children: [
+                    Checkbox(
+                      checkColor: Colors.white,
+                      value: isCheckedMailboxes[index],
+                      onChanged: (bool? value) {
+                        setState(() {
+                          isCheckedMailboxes[index] = value!;
+                        });
+                      },
+                    ),
+                    Expanded(
+                        child: ListTile(
+                      leading: const Icon(Icons.mail_outline),
+                      title: Text(listmailboxes[index]),
+                      trailing: Text(count.toString()),
+                    ))
+                  ],
+                ),
+              );
+            }));
+
+    Widget listSpecialFolders = Expanded(
+        child: ListView.builder(
+            itemCount: listSpecial.length,
+            itemBuilder: (context, index) {
+              return Card(
+                child: Row(
+                  children: [
+                    Checkbox(
+                      checkColor: Colors.white,
+                      value: isCheckedSpecial[index],
+                      onChanged: (bool? value) {
+                        setState(() {
+                          isCheckedSpecial[index] = value!;
+                        });
+                      },
+                    ),
+                    Expanded(
+                        child: ListTile(
+                      leading: const Icon(Icons.mail_outline),
+                      title: Text(listSpecial[index]),
+                      trailing: Text(count.toString()),
+                    ))
+                  ],
+                ),
+              );
+            }));
+
+    return Scaffold(
+        body: Column(children: [
+          title,
+          mailboxes,
+          listMailboxes,
+          specialFolder,
+          listSpecialFolders
+        ]),
+        bottomNavigationBar: Container(
+          padding: const EdgeInsets.only(left: 20, right: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Delete'),
+              IconButton(
+                icon: const Icon(
+                  Icons.delete,
+                  color: Colors.red,
+                ),
+                onPressed: () {
+                  for (var item in isCheckedSpecial) {
+                    if (item) {
+                      setState(() {});
+                    }
+                  }
+                },
+              ),
+            ],
+          ),
+        ));
   }
 }
